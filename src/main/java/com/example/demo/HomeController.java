@@ -68,7 +68,7 @@ public class HomeController {
 
     @RequestMapping("/detail/{id}")
     public String showToDoList(@PathVariable("id") long id, Model model) {
-        model.addAttribute("message", messageRespository.findById(id).get());
+        model.addAttribute("message", messageRespository.findById(id).get());git
         return "show";
     }
 
