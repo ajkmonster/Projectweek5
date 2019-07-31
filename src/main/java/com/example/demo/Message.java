@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -22,11 +23,13 @@ public class Message {
     @Size(min=10)
     private String content;
     private String picture;
+
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date postedDate;
     @NotNull
     private String postedBy;
+    
 
     public Message() {
     }

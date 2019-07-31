@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,37 +36,53 @@ public class HomeController {
     }
 
     @PostMapping("/process")
-    public String processForm(@Valid Message message,
-                              BindingResult result, @RequestParam("file") MultipartFile file,@RequestParam("postedDate") String postedDate) {
-
-
-            if (result.hasErrors() || file.isEmpty()) {
-        return "listform";
-    }
+    public String processForm(@Valid @ModelAttribute("message") Message message,
+                              BindingResult result,
+                              @RequestParam("file") MultipartFile file, @RequestParam("postedDate") String postedDate) {
+        System.out.println("object = " + message );
+        //check for errors on the form
+        if (result.hasErrors() ){
+            for (ObjectError e : result.getAllErrors()){
+                System.out.println(e);
+            }
+            return "messageform";
+        }
         Date date = new Date();
+
         try {
-            date = new SimpleDateFormat("yyyy-MM-d").parse(postedDate);
+            date = new SimpleDateFormat("yyyy-MM-dd").parse(postedDate);
             message.setPostedDate(date);
         }
         catch(Exception e){
             e.printStackTrace();
             return "redirect:/listform";
         }
-        try {
-            Map uploadResult = cloudc.upload(file.getBytes(), ObjectUtils.asMap("resourcetype", "auto"));
-            String url = uploadResult.get("url").toString();
-            int i = url.lastIndexOf('/');
-            url=url.substring(i+1);
-            url="http://res.cloudinary.com/ajkmonster/image/upload/w_300,h_300/"+url;
-            message.setPicture(url);
+
+        //if there is a picture path and file is empty then save message
+        if(message.getPicture() != null && file.isEmpty()){
             messageRespository.save(message);
+            return "redirect:/";
+        }
+
+        if( file.isEmpty()){
+            return "messageform";
+        }
+        Map uploadResult;
+        try {
+            uploadResult = cloudc.upload(
+                    file.getBytes(), ObjectUtils.asMap("resourcetype", "auto"));
         } catch (IOException e) {
             e.printStackTrace();
-            return "redirect:/listform";
+            return "redirect:/messageform";
         }
+        String url = uploadResult.get("url").toString();
+        int i = url.lastIndexOf('/');
+        url=url.substring(i+1);
+        url="http://res.cloudinary.com/ajkmonster/image/upload/w_300,h_300/"+url;
+        message.setPicture(url);
+        messageRespository.save(message);
         return "redirect:/";
     }
-
     @RequestMapping("/detail/{id}")
     public String showToDoList(@PathVariable("id") long id, Model model) {
         model.addAttribute("message", messageRespository.findById(id).get());
