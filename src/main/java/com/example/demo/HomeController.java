@@ -64,24 +64,27 @@ public class HomeController {
             return "redirect:/";
         }
 
-        if( file.isEmpty()){
-            return "messageform";
+        if(file.isEmpty()){
+            messageRespository.save(message);
+            return "redirect:/";
         }
-        Map uploadResult;
-        try {
-            uploadResult = cloudc.upload(
-                    file.getBytes(), ObjectUtils.asMap("resourcetype", "auto"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "redirect:/messageform";
+        else {
+            Map uploadResult;
+            try {
+                uploadResult = cloudc.upload(
+                        file.getBytes(), ObjectUtils.asMap("resourcetype", "auto"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "redirect:/messageform";
+            }
+            String url = uploadResult.get("url").toString();
+            int i = url.lastIndexOf('/');
+            url = url.substring(i + 1);
+            url = "http://res.cloudinary.com/ajkmonster/image/upload/w_300,h_300/" + url;
+            message.setPicture(url);
+            messageRespository.save(message);
+            return "redirect:/";
         }
-        String url = uploadResult.get("url").toString();
-        int i = url.lastIndexOf('/');
-        url=url.substring(i+1);
-        url="http://res.cloudinary.com/ajkmonster/image/upload/w_300,h_300/"+url;
-        message.setPicture(url);
-        messageRespository.save(message);
-        return "redirect:/";
     }
     @RequestMapping("/detail/{id}")
     public String showToDoList(@PathVariable("id") long id, Model model) {
