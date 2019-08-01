@@ -41,6 +41,9 @@
 
                     <div class="panel-body text-center" >
                         <img th:src="${message.picture}"/>
+                        <div th:if="*{message.picture != null}">
+                            <button class="label label-default"><a th:href="@{/deletePicture/{id}(id=${message.id})}">Delete Picture</a></button>
+                        </div>
                         <p th:text="${message.content}"></p>
                     </div>
 

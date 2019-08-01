@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -64,6 +64,10 @@
             <input type="file" class="form-control-file" name="file"/>
                 </div>
                 </div>
+                    <div th:if="*{picture} != null">
+                        <input th:field="*{picture}" type ="hidden">
+                        <span th:errors="*{picture}" th:if="${#fields.hasErrors('picture')}"></span>
+                    </div>
                 </div>
             <br />
             <div class="form-group">

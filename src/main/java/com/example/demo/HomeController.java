@@ -103,4 +103,11 @@ public class HomeController {
         messageRespository.deleteById(id);
         return "redirect:/";
     }
+    @RequestMapping("/deletePicture/{id}")
+    public String delToDoListPicture(@PathVariable("id") long id) {
+        Message message =  messageRespository.findById(id).get();
+        message.setPicture(null);
+        messageRespository.save(message);
+        return "redirect:/";
+    }
 }
